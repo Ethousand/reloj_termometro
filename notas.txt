@@ -1,0 +1,2 @@
+1.-la función lcd no funciona con arrays
+2.-
