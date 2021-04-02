@@ -1,2 +1,2 @@
 1.-la función lcd no funciona con arrays
-2.-
+2.-se agrego función de configuración de reloj y de calendario
