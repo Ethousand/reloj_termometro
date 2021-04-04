@@ -1,2 +1,6 @@
 1.-la función lcd no funciona con arrays
 2.-se agrego función de configuración de reloj y de calendario
+3.- correción de la salida del panel LCD
+4.- agregado array de calendario
+	4.1.- eliminada variable year_i
+	4.2.- array de columna para ordenar el layout

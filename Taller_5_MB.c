@@ -6,13 +6,18 @@
 
 #include <lcd.c>
 
+//variables generales
+int delay = 200, stop = 1000;
+int column[2] = {1, 2};
+
 // variables de reloj
 int hora = 1, min, seg, xm = 0;
 int hora_i, min_i, seg_i;
 
 //variables de calendario
 int day, month, year;
-int day_i, month_i, year_i;
+int day_i, month_i;
+int calentar[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
 // variables del termometro
 
@@ -23,7 +28,7 @@ void config_hour()
     lcd_putc('\f');
     lcd_gotoxy(1, 1);
     printf(lcd_putc, "config");
-    delay_ms(500);
+    delay_ms(stop);
     while (true)
     {
         lcd_putc('\f');
@@ -39,11 +44,12 @@ void config_hour()
         {
             printf(lcd_putc, "%2d:%02d:%02d pm", hora_i, min_i, seg_i);
         }
-        Delay_ms(200);
+        Delay_ms(delay);
 
         switch (porta)
         {
         case 0x01:
+            lcd_putc("\f");
             return;
             break;
 
@@ -76,7 +82,7 @@ void config_hour()
             break;
 
         default:
-            Delay_ms(200);
+            Delay_ms(delay);
             break;
         }
     }
@@ -87,7 +93,7 @@ void config_date()
     lcd_putc('\f');
     lcd_gotoxy(1, 1);
     printf(lcd_putc, "config 2");
-    delay_ms(500);
+    delay_ms(stop);
     while (true)
     {
         lcd_putc('\f');
@@ -95,12 +101,13 @@ void config_date()
         printf(lcd_putc, "fecha:");
 
         lcd_gotoxy(1, 2);
-        printf(lcd_putc, "%2d/%02d/2,%03d", day_i, month_i, year_i);
-        Delay_ms(200);
+        printf(lcd_putc, "%2d/%02d/2,%03d", day_i, month_i, year);
+        Delay_ms(delay);
         switch (porta)
         {
 
         case 0x01:
+            lcd_putc("\f");
             return;
             break;
 
@@ -122,15 +129,15 @@ void config_date()
             break;
 
         case 0x08:
-            year_i++;
+            year++;
             break;
 
         case 0x10:
-            year_i = 0;
+            year = 0;
             break;
 
         default:
-            Delay_ms(200);
+            Delay_ms(delay);
             break;
         }
     }
@@ -139,22 +146,30 @@ void config_date()
 void main()
 {
     lcd_init();
+    lcd_putc('\f');
+    lcd_gotoxy(1, 1);
+    printf(lcd_putc, "inicia reloj");
+    delay_ms(delay);
+    config_hour();
+    delay_ms(delay);
+    config_date();
+
+    lcd_gotoxy(1, 1);
+    printf(lcd_putc, "%02d:%02d:%02d xm", hora_i, min_i, seg_i);
+
+    lcd_gotoxy(1, 2);
+    printf(lcd_putc, "%02d/%02d/2,%03d", day_i, month_i, year);
+    delay_ms(stop * 2);
 
     while (true)
     {
-        lcd_putc('\f');
-        lcd_gotoxy(1, 1);
-        printf(lcd_putc, "inicia reloj");
-        delay_ms(200);
-        config_hour();
-        delay_ms(200);
-        config_date();
-
         lcd_putc("\f");
         lcd_gotoxy(1, 1);
-        printf(lcd_gotoxy, "%02d:%02d:%02d xm", hora_i, min_i, seg_i);
+        printf(lcd_putc, "hola khe hace");
+        delay_ms(stop * 2);
 
         lcd_gotoxy(1, 2);
-        printf(lcd_putc, "%02d/%02d/2,%03d", day_i, month_i, year_i);
+        printf(lcd_putc, "linea 2");
+        delay_ms(stop);
     }
 }
