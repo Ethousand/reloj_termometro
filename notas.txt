@@ -4,3 +4,8 @@
 4.- agregado array de calendario
 	4.1.- eliminada variable year_i
 	4.2.- array de columna para ordenar el layout
+5.-Aplicación de ciclos para calendario y reloj
+	5.1.-cambio de la visualizacón del mes para adaptarla a al array
+	5.2.-limite de los días según debido al array
+	5.3.-condicional para cambiar el mes de febrero a 29 días (de ser visiesto) y 28
+	5.4.-correción de horas am/pm (12-1-2-3...)
