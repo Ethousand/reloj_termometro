@@ -9,3 +9,8 @@
 	5.2.-limite de los días según debido al array
 	5.3.-condicional para cambiar el mes de febrero a 29 días (de ser visiesto) y 28
 	5.4.-correción de horas am/pm (12-1-2-3...)
+
+proximo:
+-función de alarma
+-implementación de termometro
+-escritura de informe

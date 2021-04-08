@@ -7,13 +7,16 @@
 #include <lcd.c>
 
 //variables generales
-int delay = 200, stop = 10;
+int delay = 200, stop = 100;
 int column[2] = {1, 2};
-int layout = 0;
+int layout;
 
 // variables de reloj
 int hora, min, seg, xm;
 int hora_i = 1, hora_q, min_i, seg_i, xm_i;
+
+//variables de alarma
+int a_hora = 1, a_xm;
 
 //variables de calendario
 int day, month, year;
@@ -28,7 +31,7 @@ void config_date()
 {
     lcd_putc('\f');
     lcd_gotoxy(1, 1);
-    printf(lcd_putc, "config 2");
+    printf(lcd_putc, "config 1");
     delay_ms(stop);
     while (true)
     {
@@ -47,17 +50,17 @@ void config_date()
 
         lcd_gotoxy(1, 2);
         printf(lcd_putc, "%2d/%02d/2,%03d", day_i, month_i + 1, year);
-        Delay_ms(delay);
-        switch (porta)
+        delay_ms(delay);
+        switch (portb)
         {
 
         case 0x01:
             lcd_putc("\f");
+            delay_ms(delay);
             return;
             break;
 
         case 0x02:
-            //asignar un array para determinar la fecha final del mes
             day_i++;
             if (day_i > calendar[month_i])
             {
@@ -82,7 +85,7 @@ void config_date()
             break;
 
         default:
-            Delay_ms(delay);
+            delay_ms(delay);
             break;
         }
     }
@@ -92,7 +95,7 @@ void config_hour()
 {
     lcd_putc('\f');
     lcd_gotoxy(1, 1);
-    printf(lcd_putc, "config");
+    printf(lcd_putc, "config 2");
     delay_ms(stop);
     while (true)
     {
@@ -101,7 +104,7 @@ void config_hour()
         printf(lcd_putc, "hora:");
         lcd_gotoxy(1, 2);
 
-        if (xm == 0)
+        if (xm_i == 0)
         {
             printf(lcd_putc, "%2d:%02d:%02d am", hora_i, min_i, seg_i);
         }
@@ -109,12 +112,13 @@ void config_hour()
         {
             printf(lcd_putc, "%2d:%02d:%02d pm", hora_i, min_i, seg_i);
         }
-        Delay_ms(delay);
+        delay_ms(delay);
 
-        switch (porta)
+        switch (portb)
         {
         case 0x01:
             lcd_putc("\f");
+            delay_ms(delay);
             return;
             break;
 
@@ -143,27 +147,74 @@ void config_hour()
             break;
 
         case 0x10:
-            xm = 1 - xm;
+            xm_i = 1 - xm_i;
             break;
 
         default:
-            Delay_ms(delay);
+            delay_ms(delay);
             break;
         }
     }
 }
 
-void main()
+void set_alarm()
 {
-    lcd_init();
     lcd_putc('\f');
-    config_date();
-    delay_ms(delay);
-    config_hour();
-    delay_ms(delay);
+    lcd_gotoxy(1, 1);
+    printf(lcd_putc, "config 3");
+    delay_ms(stop);
 
+    while (true)
+    {
+        lcd_putc('\f');
+        lcd_gotoxy(1, 1);
+        printf(lcd_putc, "alarma:");
+        lcd_gotoxy(1, 2);
+
+        if (a_xm == 0)
+        {
+            printf(lcd_putc, "%2d am", a_hora);
+        }
+        else
+        {
+            printf(lcd_putc, "%2d pm", a_hora);
+        }
+        delay_ms(delay);
+
+        switch (portb)
+        {
+        case 0x01:
+            lcd_putc("\f");
+            delay_ms(delay);
+            return;
+            break;
+
+        case 0x02:
+            a_hora++;
+            if (a_hora > 12)
+            {
+                a_hora = 1;
+            }
+            delay_ms(delay);
+            break;
+
+        case 0x04:
+            a_xm = 1 - a_xm;
+            delay_ms(delay);
+            break;
+
+        default:
+            delay_ms(delay);
+            break;
+        }
+    }
+}
+
+void show_date_hour()
+{
+    delay_ms(delay);
     lcd_gotoxy(1, column[0]);
-    printf(lcd_putc, "%02d:%02d:%02d xm", hora_i, min_i, seg_i);
+    printf(lcd_putc, "%02d:%02d:%02dxm", hora_i, min_i, seg_i);
 
     lcd_gotoxy(1, column[1]);
     printf(lcd_putc, "%02d/%02d/2,%03d", day_i, month_i, year);
@@ -171,15 +222,13 @@ void main()
 
     while (true)
     {
-        // opciones de reloj
-
-        //ciclo de reloj calendario-reloj
         if (hora_i == 12)
         {
             hora_i = 0;
         }
 
         lcd_putc("\f");
+
         if (year % 4 == 0)
         {
             calendar[1] = 29;
@@ -214,27 +263,63 @@ void main()
                                 printf(lcd_putc, "%02d/%02d/2,%03d", day, month + 1, year);
 
                                 lcd_gotoxy(1, column[1]);
-                                if (xm == 0)
+                                switch (a_xm)
                                 {
-                                    printf(lcd_putc, "%02d:%02d:%02d AM", hora_q, min, seg);
+                                case 0:
+                                    if (xm == 0)
+                                    {
+                                        printf(lcd_putc, "%02d:%02d:%02dAm  %02dAm", hora_q, min, seg, a_hora);
+                                    }
+                                    else
+                                    {
+                                        printf(lcd_putc, "%02d:%02d:%02dPm  %02dAm", hora, min, seg, a_hora);
+                                    }
+                                    break;
+
+                                case 1:
+                                    if (xm == 0)
+                                    {
+                                        printf(lcd_putc, "%02d:%02d:%02dAm  %02dPm", hora_q, min, seg, a_hora);
+                                    }
+                                    else
+                                    {
+                                        printf(lcd_putc, "%02d:%02d:%02dPm  %02dPm", hora, min, seg, a_hora);
+                                    }
+                                    break;
                                 }
-                                else
-                                {
-                                    printf(lcd_putc, "%02d:%02d:%02d PM", hora, min, seg);
-                                }
+
                                 //delay_ms(stop);
                             }
                         }
                     }
                 }
-                xm_i = 0;
-                hora_i = 0;
-                min_i = 0;
-                seg_i = 0;
+                xm_i = 0, hora_i = 0, min_i = 0, seg_i = 0;
             }
         }
-        month_i = 0;
-        day = 1;
-        year++;
+        month_i = 0, day_i = 1, year++;
+    }
+}
+
+void main()
+{
+    //configurar puertos
+    set_tris_a(0xff);
+    set_tris_b(0x1f);
+    portb = 0x00;
+
+    //inicio del panel LCD
+    lcd_init();
+    lcd_putc('\f');
+
+    while (true)
+    {
+
+        config_date();
+        config_hour();
+        set_alarm();
+        delay_ms(delay);
+
+        show_date_hour();
+        delay_ms(delay);
     }
 }
