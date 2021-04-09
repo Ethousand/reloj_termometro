@@ -12,3 +12,7 @@
 6.- creación de función para configurar alarma
 7.- declaración de funcion show display, la función main solo llamara a las a las diferentes funciones
 8.- creada función para cambio de layout, apagar alarma, solo se activara si el puerto-b es diferente de 0 o 1
+9.- agregadas variables de termperatura
+	9.1.- activación de puerto analogos y pin de medicion
+	9.2.- aplicar medición de temperatura en el ciclo de reloj
+10.- fin del proyecto

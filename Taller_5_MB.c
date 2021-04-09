@@ -1,4 +1,5 @@
 #include <16f887.h>
+#device adc = 10
 #use DELAY(clock = 4000000)
 #byte porta = 0x05
 #byte portb = 0x06
@@ -238,7 +239,7 @@ void change(int status)
 
 void show_display()
 {
-
+    set_adc_channel(0);
     while (true)
     {
         lcd_putc("\f");
@@ -272,8 +273,13 @@ void show_display()
                         {
                             for (seg = seg_i; seg < 60; seg++)
                             {
+                                //lectura de temperatura
+                                med = read_adc();
+                                temp = (med * 500) / 1024;
+
+                                //funcion de reloj
                                 lcd_gotoxy(1, column[0]);
-                                printf(lcd_putc, "%02d/%02d/2,%03d", day, month + 1, year);
+                                printf(lcd_putc, "%02d/%02d/2,%03d  %02dC", day, month + 1, year, temp);
 
                                 lcd_gotoxy(1, column[1]);
                                 switch (a_xm)
@@ -300,7 +306,7 @@ void show_display()
                                     }
                                     break;
                                 }
-                                //delay_ms(stop);
+                                delay_ms(stop);
                                 if (portb == 0x01)
                                 {
                                     return;
@@ -332,8 +338,11 @@ void show_display()
 
 void main()
 {
+    //configuración de termometro
+    setup_adc(adc_clock_internal);
+    setup_adc(all_analog);
     //configuración de puertos
-    set_tris_a(0xff);
+
     set_tris_b(0xff);
     set_tris_c(0x00);
 
