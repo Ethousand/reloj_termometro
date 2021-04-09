@@ -11,3 +11,4 @@
 	5.4.-correción de horas am/pm (12-1-2-3...)
 6.- creación de función para configurar alarma
 7.- declaración de funcion show display, la función main solo llamara a las a las diferentes funciones
+8.- creada función para cambio de layout, apagar alarma, solo se activara si el puerto-b es diferente de 0 o 1
