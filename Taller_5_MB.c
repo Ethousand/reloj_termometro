@@ -6,7 +6,7 @@
 #byte portc = 0x07
 #fuses xt, NOPROTECT, NOWDT, NOBROWNOUT, PUT, NOLVP
 
-#include <lcd.c>
+#include <lcd.c> // la libreria define al puerto D como salida por defecto así que no es necesario configurarlo
 
 //variables generales
 int delay = 200, stop = 1000;
@@ -14,8 +14,8 @@ int column[2] = {1, 2};
 int layout;
 
 // variables de reloj
-int hora, min, seg, xm;
-int hora_i, hora_q, min_i, seg_i, xm_i;
+int hora, min, seg, xm;                   // xm = am/pm
+int hora_i, hora_LCD, min_i, seg_i, xm_i; // variables para el inicio de reloj y hora_LCD que se mostrará en pantalla
 
 //variables de alarma
 int a_hora = 1, a_xm;
@@ -24,10 +24,10 @@ int alarm_on;
 //variables de calendario
 int day, month, year;
 int day_i = 1, month_i = 0;
-int calendar[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+int calendar[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}; // array que determina cuantos dias tiene el mes en cuestion
 
 // variables del termometro
-int med, temp;
+int med, temp; // med: medición directa del puerto; temp: temperatura resultante de la medición
 
 //ejecucin del programa
 
@@ -35,11 +35,11 @@ void config_date()
 {
     while (true)
     {
-        if (year % 4 == 0)
+        if (year % 4 == 0) // en caso de ser año viciesto
         {
             calendar[1] = 29;
         }
-        else
+        else // de no serlo
         {
             calendar[1] = 28;
         }
@@ -60,7 +60,6 @@ void config_date()
             break;
 
         case 0x02:
-            //asignar un array para determinar la fecha final del mes
             day_i++;
             if (day_i > calendar[month_i])
             {
@@ -100,22 +99,23 @@ void config_hour()
         printf(lcd_putc, "config hora:");
         lcd_gotoxy(1, 2);
 
-        if (hora_i == 0)
+        if (hora_i == 0) // corrección para mostrar la hora desde las 12 como reloj civil
         {
-            hora_q = 12;
+            hora_LCD = 12;
         }
         else
         {
-            hora_q = hora_i;
+            hora_LCD = hora_i;
         }
+        // display al segun si estas es antes o despues del mediodia
 
         if (xm_i == 0)
         {
-            printf(lcd_putc, "%2d:%02d:%02dAm", hora_q, min_i, seg_i);
+            printf(lcd_putc, "%2d:%02d:%02dAm", hora_LCD, min_i, seg_i);
         }
         else
         {
-            printf(lcd_putc, "%2d:%02d:%02dPm", hora_q, min_i, seg_i);
+            printf(lcd_putc, "%2d:%02d:%02dPm", hora_LCD, min_i, seg_i);
         }
         delay_ms(delay);
 
@@ -186,6 +186,7 @@ void set_alarm()
             return;
             break;
 
+        // en este caso no hay corrección de horario por no tener que mostrarse de manera horaria, solo mostrar los digitos correspondientes
         case 0x02:
             a_hora++;
             if (a_hora > 12)
@@ -205,6 +206,7 @@ void set_alarm()
     }
 }
 
+//esta función no utiliza ciclo while para no alterar el ciclo de reloj en la función show_Display
 void change(int status)
 {
     delay_ms(delay);
@@ -262,24 +264,25 @@ void show_display()
                     {
                         if (hora == 0)
                         {
-                            hora_q = 12;
+                            hora_LCD = 12;
                         }
                         else
                         {
-                            hora_q = hora;
+                            hora_LCD = hora;
                         }
 
                         for (min = min_i; min < 60; min++)
                         {
                             for (seg = seg_i; seg < 60; seg++)
                             {
-                                //lectura de temperatura
-                                med = read_adc();
-                                temp = (med * 500) / 1024;
+
+                                med = read_adc();          //lectura del integrado
+                                temp = (med * 500) / 1024; // conversion a la temperatura equivalente
 
                                 //funcion de reloj
                                 lcd_gotoxy(1, column[0]);
                                 printf(lcd_putc, "%02d/%02d/2,%03d  %02dC", day, month + 1, year, temp);
+                                //el LCD solo puee representar digitos de hasta 3 digitos, el cuarto bit es la bandera de signo
 
                                 lcd_gotoxy(1, column[1]);
                                 switch (a_xm)
@@ -287,22 +290,22 @@ void show_display()
                                 case 1:
                                     if (xm == 0)
                                     {
-                                        printf(lcd_putc, "%02d:%02d:%02dAm  %02dPm", hora_q, min, seg, a_hora);
+                                        printf(lcd_putc, "%02d:%02d:%02dAm  %02dPm", hora_LCD, min, seg, a_hora);
                                     }
                                     else
                                     {
-                                        printf(lcd_putc, "%02d:%02d:%02dPm  %02dPm", hora_q, min, seg, a_hora);
+                                        printf(lcd_putc, "%02d:%02d:%02dPm  %02dPm", hora_LCD, min, seg, a_hora);
                                     }
                                     break;
 
                                 default:
                                     if (xm == 0)
                                     {
-                                        printf(lcd_putc, "%02d:%02d:%02dAm  %02dAm", hora_q, min, seg, a_hora);
+                                        printf(lcd_putc, "%02d:%02d:%02dAm  %02dAm", hora_LCD, min, seg, a_hora);
                                     }
                                     else
                                     {
-                                        printf(lcd_putc, "%02d:%02d:%02dPm  %02dAm", hora_q, min, seg, a_hora);
+                                        printf(lcd_putc, "%02d:%02d:%02dPm  %02dAm", hora_LCD, min, seg, a_hora);
                                     }
                                     break;
                                 }
@@ -311,7 +314,7 @@ void show_display()
                                 {
                                     return;
                                 }
-                                if (a_hora == hora_q && a_xm == xm && min == 0)
+                                if (a_hora == hora_LCD && a_xm == xm && min == 0)
                                 {
                                     bit_set(portc, 1);
                                 }
@@ -322,6 +325,7 @@ void show_display()
                                     //funcion de cambio para LCD
                                 }
                             }
+                            // cada nuevo ciclo reinicia el numero inicial para que este pueda empezar desde su fecha inicial
                             seg_i = 0;
                         }
                         min_i = 0;
@@ -336,15 +340,16 @@ void show_display()
     }
 }
 
+// en la función main se iniciaran los procesos para ser ejecutados por las demas funciones
 void main()
 {
     //configuración de termometro
     setup_adc(adc_clock_internal);
-    setup_adc(all_analog);
+    setup_adc(all_analog); // define le puerto a y todos sus pines como entradas analogas
     //configuración de puertos
 
-    set_tris_b(0xff);
-    set_tris_c(0x00);
+    set_tris_b(0xff); // entrada
+    set_tris_c(0x00); // salida
 
     portc = 0x00;
 

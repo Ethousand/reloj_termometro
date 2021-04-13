@@ -16,3 +16,4 @@
 	9.1.- activación de puerto analogos y pin de medicion
 	9.2.- aplicar medición de temperatura en el ciclo de reloj
 10.- fin del proyecto
+11.- agregado comentarios
