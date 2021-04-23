@@ -10,7 +10,6 @@
 
 //variables generales
 int delay = 200, stop = 1000;
-
 int column[2] = {1, 2};
 int layout;
 
@@ -21,9 +20,6 @@ int hora_i, hora_LCD, min_i, seg_i, xm_i; // variables para el inicio de reloj y
 //variables de alarma
 int a_hora = 1, a_xm;
 int alarm_on;
-
-//variables de alarma
-int a_hora = 1, a_xm;
 
 //variables de calendario
 int day, month, year;
@@ -60,7 +56,6 @@ void config_date()
 
         case 0x01:
             lcd_putc("\f");
-            delay_ms(delay);
             return;
             break;
 
@@ -104,7 +99,6 @@ void config_hour()
         printf(lcd_putc, "config hora:");
         lcd_gotoxy(1, 2);
 
-
         if (hora_i == 0) // corrección para mostrar la hora desde las 12 como reloj civil
         {
             hora_LCD = 12;
@@ -114,7 +108,7 @@ void config_hour()
             hora_LCD = hora_i;
         }
         // display al segun si estas es antes o despues del mediodia
-      
+
         if (xm_i == 0)
         {
             printf(lcd_putc, "%2d:%02d:%02dAm", hora_LCD, min_i, seg_i);
@@ -129,7 +123,6 @@ void config_hour()
         {
         case 0x01:
             lcd_putc("\f");
-            delay_ms(delay);
             return;
             break;
 
@@ -171,7 +164,8 @@ void config_hour()
 void set_alarm()
 {
     while (true)
-    {  
+    {
+
         lcd_putc("\f");
         lcd_gotoxy(1, 1);
         printf(lcd_putc, "config alarm:");
@@ -201,7 +195,6 @@ void set_alarm()
             }
             break;
 
-
         case 0x04:
             a_xm = 1 - a_xm;
             break;
@@ -214,7 +207,6 @@ void set_alarm()
 }
 
 //esta función no utiliza ciclo while para no alterar el ciclo de reloj en la función show_Display
-
 void change(int status)
 {
     delay_ms(delay);
@@ -233,7 +225,6 @@ void change(int status)
             column[1] = 1;
         }
         else
-
         {
             column[0] = 1;
             column[1] = 2;
@@ -244,6 +235,7 @@ void change(int status)
         delay_ms(delay);
         break;
     }
+    //delay_ms(1000);
     lcd_putc("\f");
 }
 
@@ -253,7 +245,6 @@ void show_display()
     while (true)
     {
         lcd_putc("\f");
-
         if (year % 4 == 0)
         {
             calendar[1] = 29;
@@ -295,7 +286,6 @@ void show_display()
 
                                 lcd_gotoxy(1, column[1]);
                                 switch (a_xm)
-
                                 {
                                 case 1:
                                     if (xm == 0)
@@ -318,7 +308,6 @@ void show_display()
                                         printf(lcd_putc, "%02d:%02d:%02dPm  %02dAm", hora_LCD, min, seg, a_hora);
                                     }
                                     break;
-
                                 }
                                 delay_ms(stop);
                                 if (portb == 0x01)
@@ -335,31 +324,6 @@ void show_display()
                                     change(portb);
                                     //funcion de cambio para LCD
                                 }
-
-                                {
-                                case 0:
-                                    if (xm == 0)
-                                    {
-                                        printf(lcd_putc, "%02d:%02d:%02dAm  %02dAm", hora_q, min, seg, a_hora);
-                                    }
-                                    else
-                                    {
-                                        printf(lcd_putc, "%02d:%02d:%02dPm  %02dAm", hora, min, seg, a_hora);
-                                    }
-                                    break;
-
-                                case 1:
-                                    if (xm == 0)
-                                    {
-                                        printf(lcd_putc, "%02d:%02d:%02dAm  %02dPm", hora_q, min, seg, a_hora);
-                                    }
-                                    else
-                                    {
-                                        printf(lcd_putc, "%02d:%02d:%02dPm  %02dPm", hora, min, seg, a_hora);
-                                    }
-                                    break;
-                                }
-                                delay_ms(stop);
                             }
                             // cada nuevo ciclo reinicia el numero inicial para que este pueda empezar desde su fecha inicial
                             seg_i = 0;
