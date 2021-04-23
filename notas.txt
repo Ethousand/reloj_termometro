@@ -17,3 +17,4 @@
 	9.2.- aplicar medición de temperatura en el ciclo de reloj
 10.- fin del proyecto
 11.- agregado comentarios
+12.- Solucion de conflictos en Github
